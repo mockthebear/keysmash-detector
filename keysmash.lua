@@ -72,30 +72,3 @@ function isKeySmash(text)
 	end
 	return false
 end
-
-
-local gcoldown = {}
-local function popfurOnTalk(msg)
-	gcoldown[msg.chat.id] = gcoldown[msg.chat.id] or 0
-	if gcoldown[msg.chat.id] < os.time() then
-		--print("nocoldown", msg.chat.id)
-		if msg.text then
-			local txt = msg.text .." "
-			for word in txt:gmatch("(.-)%s") do
-				if isKeySmash(word) then 
-					gcoldown[msg.chat.id] = os.time() + 4
-					--bot.sendMessage(msg.chat.id, "ba")
-	       			bot.sendSticker(msg.chat.id, "CAACAgEAAx0CTJmDiwACJSZfNYoBzJoz_yLy2p3hDskjx_sxsAACGgADkGVrM5x-IZx71rIEGgQ", false, msg.message_id)
-	       			return
-				end
-			end
-			
-	    end
-	end
-end
-
-
-
-if StoreChatScript then
-	StoreChatScript(popfurOnTalk)
-end
