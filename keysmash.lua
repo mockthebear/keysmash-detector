@@ -2,7 +2,7 @@ function isKeySmash(text)
 	text = text:lower()
 	local common = "[asdfghjklç]"
 	local uncommon = "[zxcqwem,%.uio]"
-	local laught = "[ahus]"
+	local laught = "[ahus]" --Ppl lught wih: shusauhashuhsuauhashusa
 	local score = 0
 
 	local keysSmashLetters = 0
@@ -11,7 +11,7 @@ function isKeySmash(text)
 	local segmentVogals = 0
 	local lastIsVogal = false
 	local letterMap = {}
-	local onlyLaught = true
+	local laughtLenght = 0
 	for i=1, #text do 
 		local let = text:sub(i,i)
 		if not letterMap[let] then 
@@ -22,8 +22,8 @@ function isKeySmash(text)
 			keysSmashLetters = keysSmashLetters +1
 		end
 
-		if not let:match(laught) then 
-			onlyLaught = false
+		if let:match(laught) then 
+			laughtLenght = laughtLenght + 1
 		end
 
 		if let:match(uncommon) then 
@@ -46,10 +46,12 @@ function isKeySmash(text)
 		
 	end
 
-	if text:match("http.+") or onlyLaught then
+	local treshhold = #text*(1 - 0.15)
+	
+	if text:match("http.+") or (laughtLenght >= treshhold) then
 		return
 	end
-	local treshhold = #text*(1 - 0.15)
+	
 
 	--print(text, keysSmashLetters.."/"..(#text), segmentVogals, "Tresh: "..treshhold)
 	if keysSmashLetters > 8 and keysSmashLetters >= (#text-math.max(1, treshhold)) then
@@ -69,4 +71,31 @@ function isKeySmash(text)
 		return true
 	end
 	return false
+end
+
+
+local gcoldown = {}
+local function popfurOnTalk(msg)
+	gcoldown[msg.chat.id] = gcoldown[msg.chat.id] or 0
+	if gcoldown[msg.chat.id] < os.time() then
+		--print("nocoldown", msg.chat.id)
+		if msg.text then
+			local txt = msg.text .." "
+			for word in txt:gmatch("(.-)%s") do
+				if isKeySmash(word) then 
+					gcoldown[msg.chat.id] = os.time() + 4
+					--bot.sendMessage(msg.chat.id, "ba")
+	       			bot.sendSticker(msg.chat.id, "CAACAgEAAx0CTJmDiwACJSZfNYoBzJoz_yLy2p3hDskjx_sxsAACGgADkGVrM5x-IZx71rIEGgQ", false, msg.message_id)
+	       			return
+				end
+			end
+			
+	    end
+	end
+end
+
+
+
+if StoreChatScript then
+	StoreChatScript(popfurOnTalk)
 end
