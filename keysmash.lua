@@ -91,3 +91,5 @@ function isKeySmash(text)
 	end
 	return false, reason, keysSmashLetters
 end
+
+return {isKeySmash = isKeySmash}
