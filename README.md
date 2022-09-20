@@ -1,7 +1,11 @@
-# keysmash-detector
-Detect if the word is a keysmash or not.
+# KeySmash-Detector
+
+Detect if the word is a keysmash or not. 
+Returns (**BOOLEAN**, Reason:**STRING**, Score:**FLOAT**)
 
 # Usage
+
+Syntax isKeySmash(<string>)
 
 ```lua
 assert(not isKeySmash("cake"))
