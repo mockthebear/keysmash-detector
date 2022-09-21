@@ -1,29 +1,25 @@
-function isKeySmash(text)
-	text = text:lower()
+local _M = {}
+
+local function count_segments(text)
+	local laughtLenght = 0
+	local lastIsVowel = false
+	local repetitionMap = {}
+	local keysSmashScore = 0
+	local segmentVowels = 0
+
 	local common = "[asdfghjklç0-9]"
 	local uncommon = "[zxcqwem,%.uio]"
-	local laught = "[ahus]" --Ppl lught wih: shusauhashuhsuauhashusa
-	local score = 0
-
-	local keysSmashLetters = 0
 	local vogals = '[aeiou]'
+	local laught = "[ahus]" --Ppl lught wih: shusauhashuhsuauhashusa
 
-	if text:match("[%[%]%(%)%%0-9;!%?@\\|/]") then 
-		return false, 0
-	end
-
-	local segmentVogals = 0
-	local lastIsVogal = false
-	local letterMap = {}
-	local laughtLenght = 0
 	for i=1, #text do 
 		local let = text:sub(i,i)
-		if not letterMap[let] then 
-			letterMap[let] = 0
+		if not repetitionMap[let] then 
+			repetitionMap[let] = 0
 		end
-		letterMap[let] = letterMap[let] +1
+		repetitionMap[let] = repetitionMap[let] +1
 		if let:match(common) then 
-			keysSmashLetters = keysSmashLetters +1
+			keysSmashScore = keysSmashScore +1
 		end
 
 		if let:match(laught) then 
@@ -31,65 +27,71 @@ function isKeySmash(text)
 		end
 
 		if let:match(uncommon) then 
-			keysSmashLetters = keysSmashLetters +0.3
+			keysSmashScore = keysSmashScore +0.3
 		end
 		if let:match(vogals) then 
 
-			segmentVogals = segmentVogals -1
+			segmentVowels = segmentVowels -1
 			if (lastIsVogal) then 
-				segmentVogals = segmentVogals -1
+				segmentVowels = segmentVowels -1
 			end
 			lastIsVogal = true
 		else 
-			segmentVogals = segmentVogals +1
+			segmentVowels = segmentVowels +1
 			if (lastIsVogal) then 
-				segmentVogals = segmentVogals -1
+				segmentVowels = segmentVowels -1
 			end
 			lastIsVogal = false
 		end
 		
 	end
 
-	local treshhold = #text*(1 - 0.15)
+	return laughtLenght, repetitionMap, segmentVowels, keysSmashScore
+end
+
+function _M.isKeySmash(text, minimumKeysmashCharacters, repetitionTreshHold)
+	text = text:lower()
 	
-	if text:match("http.+") or (laughtLenght >= treshhold) then
-		return false, score, keysSmashLetters
-	end
-	
-	local reason = ""
+	minimumKeysmashCharacters = minimumKeysmashCharacters or 8
+	repetitionTreshHold = repetitionTreshHold or 0.7
 
-	--print(text, keysSmashLetters.."/"..(#text), segmentVogals, "Tresh: "..treshhold)
-	local range = math.max((#text-math.max(1, treshhold)), 8)
-	if keysSmashLetters > 8 and keysSmashLetters >= (#text-math.max(1, treshhold)) then
-		score = score +1
-	else
-		reason = "not enoght score (<"..range..");"
-		return false, reason, keysSmashLetters
-	end
-	if segmentVogals > 0 then
-		score = score +1
-	else 
-		reason = reason .. "too many vowels (vowel score: "..segmentVogals..");"
+	if text:match("[%[%]%(%)%%0-9;!%?@\\|/]") then 
+		return false, 0, "contains accentuation"
 	end
 
-	local letter_score = 0
-
-	for i,b in pairs(letterMap) do 
-		if b >= 0.7 * #text then 
-			score = score -1
-			reason = reason .. "repeat "..i.." too many times ("..tostring(0.7 * #text)..");"
-		end
+	if text:match("http.+")  then
+		return false, score, "it seems to be a http link"
 	end
 
 	if text:find("çã") or text:find("çõ") then 
-		score = score - #text/2
-		reason = reason .. "found çã and çõ;"
+		
+		return false, 0, "found çã and çõ;"
 	end
 
-	if score > 1 then 
-		return true, reason.."ok", keysSmashLetters
+	local laughtLenght, repetitionMap, segmentVowels, keysSmashScore = count_segments(text)
+	local treshhold = #text*(1 - 0.15)
+	local range = math.max((#text-math.max(1, treshhold)), minimumKeysmashCharacters)
+
+	if laughtLenght >= treshhold then 
+		return false, keysSmashScore, "it seems to  be just a laught"
 	end
-	return false, reason, keysSmashLetters
+
+	if not (keysSmashScore > minimumKeysmashCharacters and keysSmashScore >= (#text-math.max(1, treshhold))) then
+		return false, keysSmashScore, "not enoght score (<"..range..");"
+	end
+
+	if segmentVowels <= 0 then
+		return false, keysSmashScore, "too many vowels (vowel score: "..segmentVowels..");"
+	end
+
+	local limit = repetitionTreshHold * #text
+	for letter, repetitions in pairs(repetitionMap) do 
+		if repetitions >= limit then 
+			return false, keysSmashScore, "letter "..letter.." repeat more than "..tostring(repetitionTreshHold * 100).."%);"
+		end
+	end
+
+	return true, "ok", keysSmashScore
 end
 
-return {isKeySmash = isKeySmash}
+return _M
