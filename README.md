@@ -8,18 +8,19 @@ Returns (**BOOLEAN**, Reason:**STRING**, Score:**FLOAT**)
 Syntax isKeySmash(<string>)
 
 ```lua
-assert(not isKeySmash("cake"))
-assert(not isKeySmash("useful"))
-assert(not isKeySmash("pneumonoultramicroscopicsilicovolcanoconiosis"))
-assert(not isKeySmash("aeuhehuaehauehuaehaueh"))
-assert(not isKeySmash("KOPASKSPOAKSPOKSOPAKSPOAKSPOA"))
+local keysmash = require("keysmash.lua")
+assert(not keysmash.isKeySmash("cake"))
+assert(not keysmash.isKeySmash("useful"))
+assert(not keysmash.isKeySmash("pneumonoultramicroscopicsilicovolcanoconiosis"))
+assert(not keysmash.isKeySmash("aeuhehuaehauehuaehaueh"))
+assert(not keysmash.isKeySmash("KOPASKSPOAKSPOKSOPAKSPOAKSPOA"))
 
-assert(isKeySmash("klashjdlkjsdhfjklsdh"))
-assert(isKeySmash("ASLKDJSALKDJASLKDJASLK"))
-assert(isKeySmash("goodnessalsdgkwnlzkgjkssd"))
-assert(isKeySmash("AKXZNVJLKKSALDFKALD"))
-assert(isKeySmash("AKXFDJSKAHFKLDHAZSJAGQKJDHFJKS"))
-assert(isKeySmash("YESSSHFDHQJKLDSHGJXSFG"))
+assert(keysmash.isKeySmash("klashjdlkjsdhfjklsdh"))
+assert(keysmash.isKeySmash("ASLKDJSALKDJASLKDJASLK"))
+assert(keysmash.isKeySmash("goodnessalsdgkwnlzkgjkssd"))
+assert(keysmash.isKeySmash("AKXZNVJLKKSALDFKALD"))
+assert(keysmash.isKeySmash("AKXFDJSKAHFKLDHAZSJAGQKJDHFJKS"))
+assert(keysmash.isKeySmash("YESSSHFDHQJKLDSHGJXSFG"))
 
 ```
 
